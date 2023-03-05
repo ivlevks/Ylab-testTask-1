@@ -3,7 +3,7 @@ package com.ivlevks;
 import java.util.Scanner;
 
 public class Stars {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         try (Scanner scanner = new Scanner(System.in)) {
             int n = scanner.nextInt();
             int m = scanner.nextInt();

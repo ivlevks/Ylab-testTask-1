@@ -10,15 +10,15 @@ public class Guess {
         System.out.println("Я загадал число. У тебя " + maxAttempts + " попыток угадать.");
 
         try (Scanner scanner = new Scanner(System.in)) {
-            for (int i = 0; i < maxAttempts; i++) {
-                int n = scanner.nextInt();
-
-                if (n == number) {
-                    System.out.printf("Ты угадал с %d попытки!%n", i + 1);
+            for (int i = 0; i <= maxAttempts; i++) {
+                if (i == maxAttempts) {
+                    System.out.print("Ты не угадал");
                     break;
                 }
-                if (i == maxAttempts - 1) {
-                    System.out.println("Ты не угадал");
+
+                int n = scanner.nextInt();
+                if (n == number) {
+                    System.out.printf("Ты угадал с %d попытки!%n", i + 1);
                     break;
                 }
 

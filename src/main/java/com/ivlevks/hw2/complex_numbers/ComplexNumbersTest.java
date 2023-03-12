@@ -2,7 +2,7 @@ package com.ivlevks.hw2.complex_numbers;
 
 public class ComplexNumbersTest {
     public static void main(String[] args) {
-        ComplexNumbersImpl num1 = null;
+        ComplexNumbersImpl num1 = new ComplexNumbersImpl(-19, 10);
         ComplexNumbersImpl num2 = new ComplexNumbersImpl(5, -8);
 
         ComplexNumbers complexNumbers = new ComplexNumbersImpl();

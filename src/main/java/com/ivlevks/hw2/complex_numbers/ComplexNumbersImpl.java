@@ -61,6 +61,8 @@ public class ComplexNumbersImpl implements ComplexNumbers {
     @Override
     public double abs(ComplexNumbersImpl number) {
         double result = Math.sqrt(number.Re * number.Re + number.Im * number.Im);
+
+        // 3 sign after points
         double scale = 1000;
         return Math.round(result * scale) / scale;
     }

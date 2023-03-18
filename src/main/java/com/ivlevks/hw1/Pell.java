@@ -1,4 +1,4 @@
-package com.ivlevks;
+package com.ivlevks.hw1;
 
 import java.util.Scanner;
 

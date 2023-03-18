@@ -1,4 +1,4 @@
-package com.ivlevks;
+package com.ivlevks.hw1;
 
 public class MultTable {
     public static void main(String[] args) {

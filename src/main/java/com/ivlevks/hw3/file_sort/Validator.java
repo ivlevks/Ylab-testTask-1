@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 public class Validator {
     private File file;
+    private int counter = 0;
     public Validator(File file) {
         this.file = file;
     }
@@ -15,12 +16,14 @@ public class Validator {
             long prev = Long.MIN_VALUE;
             while (scanner.hasNextLong()) {
                 long current = scanner.nextLong();
+                counter++;
                 if (current < prev) {
                     return false;
                 } else {
                     prev = current;
                 }
             }
+            System.out.println("Total count lines - " + counter);
             return true;
         } catch (IOException ex) {
             ex.printStackTrace();

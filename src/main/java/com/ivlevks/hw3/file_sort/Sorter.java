@@ -8,7 +8,7 @@ public class Sorter {
 
     public File sortFile(File dataFile) throws IOException {
 //        long sizeOfChunk = Runtime.getRuntime().maxMemory() / 2;
-        long sizeOfChunk = 10_000_000L;
+        long sizeOfChunk = 200_000_000L;
 
         List<File> listFile = divideFileOnChunk(dataFile, sizeOfChunk);
         System.out.println("Complete divide");
@@ -27,12 +27,15 @@ public class Sorter {
             File first = deque.poll();
             File second = deque.poll();
             File mergedFile = mergeTwoFiles(first, second);
-            System.out.println("merge" + first.getName() + " " + second.getName());
+            System.out.println("merge " + first.getName() + "   " + second.getName());
             deque.offer(mergedFile);
         }
+        System.out.println("Merge completed");
 
-        return deque.getFirst();
+        File result = deque.getFirst();
+        return result;
     }
+
 
     private File mergeTwoFiles(File firstFile, File secondFile) throws IOException {
         File result = new File(firstFile.getParentFile(), "joinData_" + counterForJoin++);
@@ -64,6 +67,13 @@ public class Sorter {
             }
         }
 
+        if (!writeFirstValue) {
+            writer.println(value2);
+        }
+        if (!writeSecondValue) {
+            writer.println(value1);
+        }
+
         while (scanFirstFile.hasNextLong()) {
             value1 = scanFirstFile.nextLong();
             writer.println(value1);
@@ -73,13 +83,13 @@ public class Sorter {
             writer.println(value2);
         }
 
+        firstFile.delete();
+        secondFile.delete();
         scanFirstFile.close();
         scanSecondFile.close();
         writer.close();
-
         return result;
     }
-
 
     private void sortEachChunck(List<File> listFile) throws IOException {
         System.out.println("Start sort divided file");
@@ -103,7 +113,7 @@ public class Sorter {
                     printWriter.flush();
                 }
             }
-            System.out.println("sorted " + file.getName());
+            System.out.println("sorted " + file.getName() + " count lines writes  - " + list.size());
         }
     }
 
@@ -116,16 +126,18 @@ public class Sorter {
 
             while (scanner.hasNextLong()) {
                 File newFile = new File(dataFile.getParentFile(), "tempData_" + counter++);
+                int counterLines = 0;
                 try (PrintWriter printWriter = new PrintWriter(newFile)) {
 
                     while (scanner.hasNextLong()) {
-                        long number = scanner.nextLong();
                         if (newFile.length() + 8 > sizeOfChunk) break;
+                        long number = scanner.nextLong();
                         printWriter.println(number);
+                        counterLines++;
                         printWriter.flush();
                     }
                     result.add(newFile);
-                    System.out.println("created " + newFile.getName());
+                    System.out.println("created " + newFile.getName() + " count lines writes  - " + counterLines);
                 }
             }
         }

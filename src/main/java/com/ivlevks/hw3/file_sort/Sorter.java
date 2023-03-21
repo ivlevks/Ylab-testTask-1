@@ -8,7 +8,7 @@ public class Sorter {
 
     public File sortFile(File dataFile) throws IOException {
         long sizeOfHalfMemory = Runtime.getRuntime().maxMemory() / 2;
-        long sizeOfChunk = Math.min(100_000_000, sizeOfHalfMemory);
+        long sizeOfChunk = Math.min(200_000_000, sizeOfHalfMemory);
 
         List<File> listFile = divideFileOnChunk(dataFile, sizeOfChunk);
         System.out.println("Complete divide");

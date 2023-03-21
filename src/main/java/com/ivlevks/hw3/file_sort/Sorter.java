@@ -7,8 +7,8 @@ public class Sorter {
     int counterForJoin = 1;
 
     public File sortFile(File dataFile) throws IOException {
-//        long sizeOfChunk = Runtime.getRuntime().maxMemory() / 2;
-        long sizeOfChunk = 200_000_000L;
+        long sizeOfHalfMemory = Runtime.getRuntime().maxMemory() / 2;
+        long sizeOfChunk = Math.min(100_000_000, sizeOfHalfMemory);
 
         List<File> listFile = divideFileOnChunk(dataFile, sizeOfChunk);
         System.out.println("Complete divide");
@@ -36,7 +36,6 @@ public class Sorter {
         return result;
     }
 
-
     private File mergeTwoFiles(File firstFile, File secondFile) throws IOException {
         File result = new File(firstFile.getParentFile(), "joinData_" + counterForJoin++);
 
@@ -44,43 +43,47 @@ public class Sorter {
         Scanner scanSecondFile = new Scanner(new FileInputStream(secondFile));
         PrintWriter writer = new PrintWriter(result);
 
-        long value1 = 0;
-        long value2 = 0;
-        boolean writeFirstValue = true;
-        boolean writeSecondValue = true;
-        while (scanFirstFile.hasNextLong() && scanSecondFile.hasNextLong()) {
-            if (writeFirstValue) {
-                value1 = scanFirstFile.nextLong();
-            }
-            if (writeSecondValue) {
-                value2 = scanSecondFile.nextLong();
-            }
-
+        long value1 = scanFirstFile.nextLong();
+        long value2 = scanSecondFile.nextLong();
+        while (true) {
             if (value1 <= value2) {
                 writer.println(value1);
-                writeFirstValue = true;
-                writeSecondValue = false;
+                if (!scanFirstFile.hasNextLong()) {
+                    if (!scanSecondFile.hasNextLong()){
+                        writer.println(value2);
+                    }
+                    break;
+                }
+                value1 = scanFirstFile.nextLong();
             } else {
                 writer.println(value2);
-                writeFirstValue = false;
-                writeSecondValue = true;
+                if (!scanSecondFile.hasNextLong()) {
+                    if (!scanFirstFile.hasNextLong()){
+                        writer.println(value1);
+                    }
+                    break;
+                }
+                value2 = scanSecondFile.nextLong();
             }
         }
 
-        if (!writeFirstValue) {
-            writer.println(value2);
+        if (scanFirstFile.hasNextLong()) {
+            while (true) {
+                writer.println(value1);
+                if (!scanFirstFile.hasNextLong()) {
+                    break;
+                }
+                value1 = scanFirstFile.nextLong();
+            }
         }
-        if (!writeSecondValue) {
-            writer.println(value1);
-        }
-
-        while (scanFirstFile.hasNextLong()) {
-            value1 = scanFirstFile.nextLong();
-            writer.println(value1);
-        }
-        while (scanSecondFile.hasNextLong()) {
-            value2 = scanSecondFile.nextLong();
-            writer.println(value2);
+        if (scanSecondFile.hasNextLong()) {
+            while (true) {
+                writer.println(value2);
+                if (!scanSecondFile.hasNextLong()) {
+                    break;
+                }
+                value2 = scanSecondFile.nextLong();
+            }
         }
 
         firstFile.delete();
@@ -93,7 +96,7 @@ public class Sorter {
 
     private void sortEachChunck(List<File> listFile) throws IOException {
         System.out.println("Start sort divided file");
-        List<Long> list = new ArrayList<>();
+        List<Long> list = new ArrayList<>(1_000_000);
 
         for (File file : listFile) {
             list.clear();

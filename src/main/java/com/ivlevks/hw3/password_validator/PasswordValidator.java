@@ -5,7 +5,7 @@ import com.ivlevks.hw3.password_validator.exceptions.WrongPasswordException;
 
 public class PasswordValidator {
 
-    public static boolean isValidData(String login, String password, String confirmPassword) throws WrongLoginException, WrongPasswordException {
+    public static boolean isValidData(String login, String password, String confirmPassword) {
 
         boolean result = true;
         String regex = "\\w+";

@@ -7,17 +7,15 @@ public class Sorter {
     int counterForJoin = 1;
 
     public File sortFile(File dataFile) throws IOException {
-        long sizeOfHalfMemory = Runtime.getRuntime().maxMemory() / 2;
-        long sizeOfChunk = Math.min(200_000_000, sizeOfHalfMemory);
+        long sizeOfChunk = 3_000_000;
 
         List<File> listFile = divideFileOnChunk(dataFile, sizeOfChunk);
         System.out.println("Complete divide");
-        sortEachChunck(listFile);
-        File result = mergeAllChunck(listFile);
-        return result;
+
+        return mergeAllChunk(listFile);
     }
 
-    private File mergeAllChunck(List<File> listFile) throws IOException {
+    private File mergeAllChunk(List<File> listFile) throws IOException {
         Deque<File> deque = new ArrayDeque<>();
         for (File file : listFile) {
             deque.offer(file);
@@ -32,8 +30,7 @@ public class Sorter {
         }
         System.out.println("Merge completed");
 
-        File result = deque.getFirst();
-        return result;
+        return deque.getFirst();
     }
 
     private File mergeTwoFiles(File firstFile, File secondFile) throws IOException {
@@ -94,56 +91,51 @@ public class Sorter {
         return result;
     }
 
-    private void sortEachChunck(List<File> listFile) throws IOException {
-        System.out.println("Start sort divided file");
-        List<Long> list = new ArrayList<>(1_000_000);
-
-        for (File file : listFile) {
-            list.clear();
-            try (FileInputStream fileInputStream = new FileInputStream(file);
-                 Scanner scanner = new Scanner(fileInputStream)) {
-                while (scanner.hasNextLong()) {
-                    long number = scanner.nextLong();
-                    list.add(number);
-                }
-            }
-
-            Collections.sort(list);
-
-            try (PrintWriter printWriter = new PrintWriter(file)) {
-                for (Long num : list) {
-                    printWriter.println(num);
-                    printWriter.flush();
-                }
-            }
-            System.out.println("sorted " + file.getName() + " count lines writes  - " + list.size());
-        }
-    }
-
     private List<File> divideFileOnChunk(File dataFile, long sizeOfChunk) throws IOException {
         List<File> result = new ArrayList<>();
+        List<Long> listNumbers = new ArrayList<>();
+        File parentFile = dataFile.getParentFile();
         int counter = 1;
 
         try (FileInputStream fileInputStream = new FileInputStream(dataFile);
              Scanner scanner = new Scanner(fileInputStream)) {
+            int counterLines = 0;
 
             while (scanner.hasNextLong()) {
-                File newFile = new File(dataFile.getParentFile(), "tempData_" + counter++);
-                int counterLines = 0;
-                try (PrintWriter printWriter = new PrintWriter(newFile)) {
+                listNumbers.add(scanner.nextLong());
+                counterLines++;
 
-                    while (scanner.hasNextLong()) {
-                        if (newFile.length() + 8 > sizeOfChunk) break;
-                        long number = scanner.nextLong();
-                        printWriter.println(number);
-                        counterLines++;
-                        printWriter.flush();
-                    }
-                    result.add(newFile);
-                    System.out.println("created " + newFile.getName() + " count lines writes  - " + counterLines);
+                if (counterLines == sizeOfChunk) {
+                    result.add(sortAndWriteDataInChunk(listNumbers, parentFile, counter++));
+                    counterLines = 0;
+                    listNumbers.clear();
                 }
+            }
+
+            if (!listNumbers.isEmpty()) {
+                result.add(sortAndWriteDataInChunk(listNumbers, parentFile, counter++));
             }
         }
         return result;
+    }
+
+    private File sortAndWriteDataInChunk(List<Long> listNumbers, File parentFile, int counter) {
+        File newFile = new File(parentFile, "tempData_" + counter);
+        int counterLines = 0;
+
+        Collections.sort(listNumbers);
+
+        try (PrintWriter printWriter = new PrintWriter(newFile)) {
+
+            for (Long number : listNumbers) {
+                printWriter.println(number);
+                counterLines++;
+            }
+            printWriter.flush();
+            System.out.println("created " + newFile.getName() + " count lines writes  - " + counterLines);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return newFile;
     }
 }

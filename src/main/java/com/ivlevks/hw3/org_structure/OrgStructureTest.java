@@ -14,13 +14,13 @@ public class OrgStructureTest {
         printStructure(boss, offset);
     }
 
-    private static void printStructure(Employee boss, String offset) {
+    private static void printStructure(Employee employee, String offset) {
         System.out.printf("%sId - %d; bossId - %d; name - %s; position - %s%n",
-                offset, boss.getId(), boss.getBossId(), boss.getName(), boss.getPosition());
-        if (!boss.getSubordinate().isEmpty()) {
+                offset, employee.getId(), employee.getBossId(), employee.getName(), employee.getPosition());
+        if (!employee.getSubordinate().isEmpty()) {
             offset += "      ";
-            for (Employee employee : boss.getSubordinate()) {
-                printStructure(employee, offset);
+            for (Employee currentEmployee : employee.getSubordinate()) {
+                printStructure(currentEmployee, offset);
             }
         }
     }

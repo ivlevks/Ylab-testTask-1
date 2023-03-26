@@ -2,6 +2,7 @@ package com.ivlevks.hw3.org_structure;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,11 +12,25 @@ public class OrgStructureParserImpl implements OrgStructureParser {
 
     @Override
     public Employee parseStructure(File csvFile) throws IOException {
-        /*
-          Storage Employee in format: Key - id, Value - Employee
-         */
         Map<Long, Employee> employeeMap = new HashMap<>();
 
+        saveEmployeeInMap(csvFile, employeeMap);
+        createRelation(employeeMap);
+
+        return employeeMap.get(1L);
+    }
+
+    private void createRelation(Map<Long, Employee> employeeMap) {
+        for (Employee employee : employeeMap.values()) {
+            if (employee.getBossId() != null) {
+                Employee boss = employeeMap.get(employee.getBossId());
+                employee.setBoss(boss);
+                boss.getSubordinate().add(employee);
+            }
+        }
+    }
+
+    private void saveEmployeeInMap(File csvFile, Map<Long, Employee> employeeMap) {
         try (FileInputStream fileInputStream = new FileInputStream(csvFile);
              Scanner scanner = new Scanner(fileInputStream)) {
             while (scanner.hasNextLine()) {
@@ -28,31 +43,15 @@ public class OrgStructureParserImpl implements OrgStructureParser {
                 String name = split[2];
                 String position = split[3];
 
-                //get or create employee
-                Employee employee;
-                if (employeeMap.containsKey(id)) {
-                    employee = employeeMap.get(id);
-                } else employee = new Employee();
-
-                //set parameters employee
+                Employee employee = new Employee();
                 employee.setId(id);
                 employee.setBossId(bossId);
                 employee.setName(name);
                 employee.setPosition(position);
                 employeeMap.put(id, employee);
-
-                //get or create Boss of employee,
-                // add in list subordinate current employee
-                if (employeeMap.containsKey(bossId)) {
-                    employee.setBoss(employeeMap.get(bossId));
-                    employeeMap.get(bossId).getSubordinate().add(employee);
-                } else if (bossId != null){
-                    Employee employeeBoss = new Employee();
-                    employeeBoss.getSubordinate().add(employee);
-                    employeeMap.put(bossId, employeeBoss);
-                }
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return employeeMap.get(1L);
     }
 }

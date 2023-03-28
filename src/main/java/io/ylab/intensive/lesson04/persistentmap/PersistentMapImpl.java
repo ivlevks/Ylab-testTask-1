@@ -7,8 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Класс, методы которого надо реализовать
@@ -49,21 +48,66 @@ public class PersistentMapImpl implements PersistentMap {
 
     @Override
     public List<String> getKeys() throws SQLException {
-        return null;
+        List<String> resultList = new ArrayList<>();
+        String get = "SELECT key from persistent_map WHERE map_name=?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(get)) {
+
+            preparedStatement.setString(1, mapName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                resultList.add(resultSet.getString(1));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return resultList;
     }
 
     @Override
     public String get(String key) throws SQLException {
-        return null;
+        if (!containsKey(key)) return null;
+        String result;
+        String get = "SELECT value from persistent_map WHERE map_name=? AND KEY=?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(get)) {
+
+            preparedStatement.setString(1, mapName);
+            preparedStatement.setString(2, key);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            result = resultSet.getString(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
     }
 
     @Override
     public void remove(String key) throws SQLException {
+        String remove = "DELETE from persistent_map WHERE map_name=? AND KEY=?";
 
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(remove)) {
+
+            preparedStatement.setString(1, mapName);
+            preparedStatement.setString(2, key);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void put(String key, String value) throws SQLException {
+
+        if (containsKey(key)) remove(key);
+
         String put = "INSERT INTO persistent_map (map_name, KEY, value) VALUES (?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection();
@@ -79,6 +123,15 @@ public class PersistentMapImpl implements PersistentMap {
 
     @Override
     public void clear() throws SQLException {
+        String clear = "DELETE from persistent_map WHERE map_name=?";
 
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(clear)) {
+
+            preparedStatement.setString(1, mapName);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

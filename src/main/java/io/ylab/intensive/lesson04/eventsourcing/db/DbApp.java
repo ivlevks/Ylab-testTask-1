@@ -28,12 +28,8 @@ public class DbApp {
                     String receivedMessage = new String(message.getBody());
                     String routingKey = message.getEnvelope().getRoutingKey();
 
-                    System.out.println(receivedMessage);
-                    System.out.println(message.getEnvelope().getRoutingKey());
-
                     if (routingKey.equals("save")) savePersonToDB(receivedMessage, dataSource);
                     if (routingKey.equals("delete")) deletePersonFromDB(receivedMessage, dataSource);
-
                 }
             }
         }
@@ -97,6 +93,7 @@ public class DbApp {
         }
         return result;
     }
+
 
     private static ConnectionFactory initMQ() throws Exception {
         return RabbitMQUtil.buildConnectionFactory();

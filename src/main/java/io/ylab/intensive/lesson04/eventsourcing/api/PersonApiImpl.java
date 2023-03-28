@@ -80,7 +80,6 @@ public class PersonApiImpl implements PersonApi {
                 System.out.println("No person with Id " + personId);
                 return null;
             }
-
             resultSet.next();
             resultPerson = createPerson(resultSet);
         } catch (SQLException e) {
@@ -103,12 +102,10 @@ public class PersonApiImpl implements PersonApi {
                 System.out.println("No person exists in DB");
                 return resultListPerson;
             }
-
             while (resultSet.next()) {
                 Person currentPerson = createPerson(resultSet);
                 resultListPerson.add(currentPerson);
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

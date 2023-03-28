@@ -44,15 +44,32 @@ public class DbApp {
         String savePerson = "INSERT INTO person (person_id, first_name, last_name, middle_name) " +
                 "VALUES (?, ?, ?, ?)";
         if (checkPersonIfExist(personId, dataSource)) {
-            deletePersonFromDB(String.valueOf(personId), dataSource);
+            updatePersonFromDB(person, dataSource);
+        } else {
+            try (java.sql.Connection connection = dataSource.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(savePerson)) {
+                preparedStatement.setInt(1, personId.intValue());
+                preparedStatement.setString(2, person.getName());
+                preparedStatement.setString(3, person.getLastName());
+                preparedStatement.setString(4, person.getMiddleName());
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
+    }
+
+
+    private static void updatePersonFromDB(Person person, DataSource dataSource) {
+        String updatePerson = "UPDATE person SET first_name=?, last_name=?, middle_name=? " +
+                "WHERE person_id=?";
 
         try (java.sql.Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(savePerson)) {
-            preparedStatement.setInt(1, personId.intValue());
-            preparedStatement.setString(2, person.getName());
-            preparedStatement.setString(3, person.getLastName());
-            preparedStatement.setString(4, person.getMiddleName());
+             PreparedStatement preparedStatement = connection.prepareStatement(updatePerson)) {
+            preparedStatement.setString(1, person.getName());
+            preparedStatement.setString(2, person.getLastName());
+            preparedStatement.setString(3, person.getMiddleName());
+            preparedStatement.setInt(4, person.getId().intValue());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -66,15 +83,15 @@ public class DbApp {
         if (!checkPersonIfExist(personId, dataSource)) {
             System.out.println("Delete Person with Id - " + personId + " is not available. " +
                     "Person is not exist.");
-        }
-
-        String deletePerson = "DELETE from person WHERE person_id=?";
-        try (java.sql.Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(deletePerson)) {
-            preparedStatement.setInt(1, personId.intValue());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } else {
+            String deletePerson = "DELETE from person WHERE person_id=?";
+            try (java.sql.Connection connection = dataSource.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(deletePerson)) {
+                preparedStatement.setInt(1, personId.intValue());
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

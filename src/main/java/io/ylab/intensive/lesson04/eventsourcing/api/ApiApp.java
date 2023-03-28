@@ -16,19 +16,19 @@ public class ApiApp {
 
         // Тут пишем создание PersonApi, запуск и демонстрацию работы
         PersonApi personApi = new PersonApiImpl(connectionFactory);
-//        personApi.savePerson(1L, "Ivlev", "Kostik", "Stanislavovich");
-//        personApi.savePerson(2L, "Ivanov", "Ivan", "Ivanovich");
-//        personApi.savePerson(3L, "Ivanova", "Anna", "Nicolaevna");
-//        personApi.savePerson(4L, "Petrov", "Petr", "Ivanovich");
-//        personApi.savePerson(5L, "Sidorov", "Foma", "Dmitrievich");
-//        personApi.savePerson(1L, "Ivlev", "Konstantin", "Stanislavovich");
-        personApi.deletePerson(1L);
+        personApi.savePerson(1L, "Ivlev", "Kostik", "Stanislavovich");
+        personApi.savePerson(2L, "Ivanov", "Ivan", "Ivanovich");
+        personApi.savePerson(3L, "Ivanova", "Anna", "Nicolaevna");
+        personApi.savePerson(4L, "Petrov", "Petr", "Ivanovich");
+        personApi.savePerson(5L, "Sidorov", "Foma", "Dmitrievich");
+        personApi.savePerson(1L, "Ivlev", "Konstantin", "Stanislavovich");
+
         personApi.deletePerson(3L);
         personApi.deletePerson(4L);
-        personApi.deletePerson(5L);
         personApi.deletePerson(7L);
-//        Person person = personApi.findPerson(1L);
-//        List<Person> personList = personApi.findAll();
+        Person person = personApi.findPerson(1L);
+        List<Person> personList = personApi.findAll();
+        System.out.println(personList.size());
     }
 
     private static ConnectionFactory initMQ() throws Exception {

@@ -8,20 +8,12 @@ import io.ylab.intensive.lesson04.RabbitMQUtil;
 
 public class ApiApp {
     public static void main(String[] args) throws Exception {
-        String exchangeName = "exc";
-        String queueName = "queue";
 
         ConnectionFactory connectionFactory = initMQ();
+        PersonApi personApi = new PersonApiImpl(connectionFactory);
         // Тут пишем создание PersonApi, запуск и демонстрацию работы
+        personApi.savePerson(2L, "Kostik", "Ivlev", "Stanislavovich");
 
-        try (Connection connection = connectionFactory.newConnection();
-             Channel channel = connection.createChannel()) {
-            channel.exchangeDeclare(exchangeName, BuiltinExchangeType.TOPIC);
-            channel.queueDeclare(queueName, true, false, false, null);
-            channel.queueBind(queueName, exchangeName, "*");
-
-            channel.basicPublish(exchangeName, "*", null, "Hello world1111".getBytes());
-        }
     }
 
     private static ConnectionFactory initMQ() throws Exception {

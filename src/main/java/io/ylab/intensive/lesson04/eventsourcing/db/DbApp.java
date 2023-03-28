@@ -14,7 +14,6 @@ public class DbApp {
         String queueName = "queue";
         // тут пишем создание и запуск приложения работы с БД
 
-
         try (Connection connection = connectionFactory.newConnection();
              Channel channel = connection.createChannel()) {
             while (!Thread.currentThread().isInterrupted()) {

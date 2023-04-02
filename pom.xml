@@ -29,6 +29,11 @@
             <artifactId>spring-context</artifactId>
             <version>5.3.24</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
+            <version>3.0.3</version>
+        </dependency>
     </dependencies>
 
     <properties>

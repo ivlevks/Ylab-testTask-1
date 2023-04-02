@@ -1,6 +1,7 @@
 package io.ylab.intensive.lesson05.eventsourcing.api;
 
 import io.ylab.intensive.lesson05.eventsourcing.Person;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 

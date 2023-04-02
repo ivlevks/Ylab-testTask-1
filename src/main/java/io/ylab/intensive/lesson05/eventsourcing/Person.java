@@ -1,5 +1,8 @@
 package io.ylab.intensive.lesson05.eventsourcing;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Person {
   private Long id;
   private String name;

@@ -3,11 +3,23 @@ package io.ylab.intensive.lesson05.eventsourcing.db;
 import com.rabbitmq.client.ConnectionFactory;
 import io.ylab.intensive.lesson05.DbUtil;
 import org.postgresql.ds.PGSimpleDataSource;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
+@Configuration
+@ComponentScan("io.ylab.intensive.lesson05.eventsourcing.db")
+@ComponentScan("io.ylab.intensive.lesson05.eventsourcing.repository")
 public class Config {
 
   @Bean
@@ -21,7 +33,7 @@ public class Config {
 
     String ddl = ""
                      + "drop table if exists person;"
-                     + "create if not exists table person (\n"
+                     + "create table if not exists person (\n"
                      + "person_id bigint primary key,\n"
                      + "first_name varchar,\n"
                      + "last_name varchar,\n"
@@ -33,8 +45,8 @@ public class Config {
   }
 
   @Bean
-  public ConnectionFactory connectionFactory() {
-    ConnectionFactory connectionFactory = new ConnectionFactory();
+  public CachingConnectionFactory connectionFactory() {
+    CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
     connectionFactory.setHost("localhost");
     connectionFactory.setPort(5672);
     connectionFactory.setUsername("guest");
@@ -42,5 +54,39 @@ public class Config {
     connectionFactory.setVirtualHost("/");
     return connectionFactory;
   }
-  
+
+  @Bean
+  public RabbitAdmin amqpAdmin() {
+    return new RabbitAdmin(connectionFactory());
+  }
+
+  @Bean
+  public RabbitTemplate rabbitTemplate() {
+    return new RabbitTemplate(connectionFactory());
+  }
+
+  @Bean
+  public Queue saveQueue() {
+    return new Queue("saveQueue", false);
+  }
+
+  @Bean
+  public Queue deleteQueue() {
+    return new Queue("deleteQueue", false);
+  }
+
+  @Bean
+  TopicExchange topicExchange() {
+    return new TopicExchange("person-exchange");
+  }
+
+  @Bean
+  Binding saveBinding(Queue saveQueue, TopicExchange topicExchange) {
+    return BindingBuilder.bind(saveQueue).to(topicExchange).with("person.save");
+  }
+
+  @Bean
+  Binding deleteBinding(Queue deleteQueue, TopicExchange topicExchange) {
+    return BindingBuilder.bind(deleteQueue).to(topicExchange).with("person.delete");
+  }
 }

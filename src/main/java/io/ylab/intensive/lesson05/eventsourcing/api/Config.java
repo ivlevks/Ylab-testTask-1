@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan("io.ylab.intensive.lesson05.eventsourcing.api")
+@ComponentScan("io.ylab.intensive.lesson05.eventsourcing.repository")
 public class Config {
 
     @Bean

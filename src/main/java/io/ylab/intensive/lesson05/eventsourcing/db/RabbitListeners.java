@@ -1,20 +1,25 @@
 package io.ylab.intensive.lesson05.eventsourcing.db;
 
+import io.ylab.intensive.lesson05.eventsourcing.repository.Repository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 
+@Component
 public class RabbitListeners {
+    private Repository repository;
 
-    @RabbitListener(queues = "saveQueue")
-    public void receiveMessageFromSaveQueue(String message) {
-        System.out.println("Received save message: " + message);
+    public RabbitListeners(Repository repository) {
+        this.repository = repository;
     }
 
-    @RabbitListener(queues = "deleteQueue")
-    public void receiveMessageFromDeleteQueue(String message) {
-        System.out.println("Received delete message: " + message);
-    }
+    @RabbitListener(queues = {"saveQueue", "deleteQueue"})
+    public void processOrder(String data, @Header(AmqpHeaders.CONSUMER_QUEUE) String queue) {
+        System.out.println("Received message: " + data + " from " + queue);
 
+        if (queue.equals("saveQueue")) repository.savePerson(data);
+        if (queue.equals("deleteQueue")) repository.deletePerson(Long.valueOf(data));
+    }
 }

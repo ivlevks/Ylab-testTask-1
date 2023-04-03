@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -21,7 +22,19 @@ public class PersonRepositoryImpl implements Repository {
 
     @Override
     public void deletePerson(Long personId) {
-
+        if (!checkPersonIfExist(personId)) {
+            System.out.println("Delete Person with Id - " + personId + " is not available. " +
+                    "Person is not exist.");
+        } else {
+            String deletePerson = "DELETE from person WHERE person_id=?";
+            try (java.sql.Connection connection = dataSource.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(deletePerson)) {
+                preparedStatement.setInt(1, personId.intValue());
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override
@@ -55,12 +68,47 @@ public class PersonRepositoryImpl implements Repository {
 
     @Override
     public Person findPerson(Long personId) {
-        return null;
+        Person resultPerson;
+        String findPerson = "SELECT * from person WHERE person_id=?";
+
+        try (java.sql.Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(findPerson)) {
+            preparedStatement.setInt(1, personId.intValue());
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.isBeforeFirst()) {
+                System.out.println("No person with Id " + personId);
+                return null;
+            }
+            resultSet.next();
+            resultPerson = createPerson(resultSet);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultPerson;
     }
 
     @Override
     public List<Person> findAll() {
-        return null;
+        List<Person> resultListPerson = new ArrayList<>();
+        String findAll = "SELECT * from person";
+
+        try (java.sql.Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(findAll)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (!resultSet.isBeforeFirst()) {
+                System.out.println("No person exists in DB");
+                return resultListPerson;
+            }
+            while (resultSet.next()) {
+                Person currentPerson = createPerson(resultSet);
+                resultListPerson.add(currentPerson);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultListPerson;
     }
 
     private boolean checkPersonIfExist(Long personId) {
@@ -92,5 +140,19 @@ public class PersonRepositoryImpl implements Repository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Person createPerson(ResultSet resultSet) throws SQLException {
+        Person result = new Person();
+        int columnCount = resultSet.getMetaData().getColumnCount();
+        for (int i = 1; i <= columnCount; i++) {
+            String columnName = resultSet.getMetaData().getColumnName(i);
+            String columnValue = resultSet.getString(i);
+            if (columnName.equals("person_id")) result.setId(Long.parseLong(columnValue));
+            if (columnName.equals("first_name")) result.setName(columnValue);
+            if (columnName.equals("last_name")) result.setLastName(columnValue);
+            if (columnName.equals("middle_name")) result.setMiddleName(columnValue);
+        }
+        return result;
     }
 }

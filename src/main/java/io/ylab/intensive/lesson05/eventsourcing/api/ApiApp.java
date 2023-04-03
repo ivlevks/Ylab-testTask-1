@@ -1,10 +1,10 @@
 package io.ylab.intensive.lesson05.eventsourcing.api;
 
 import io.ylab.intensive.lesson05.eventsourcing.Person;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
+
 
 public class ApiApp {
     public static void main(String[] args) throws Exception {
@@ -20,12 +20,12 @@ public class ApiApp {
         personApi.savePerson(4L, "Petrov", "Petr", "Ivanovich");
         personApi.savePerson(5L, "Sidorov", "Foma", "Dmitrievich");
         personApi.savePerson(1L, "Ivlev", "Konstantin", "Stanislavovich");
-//        personApi.deletePerson(1L);
+        personApi.deletePerson(1L);
+        personApi.deletePerson(4L);
 
-
-//    List<Person> personList = personApi.findAll();
-//    System.out.println(personList.size());
-//    Person person = personApi.findPerson(1L);
-//    System.out.println(person.getName());
+        List<Person> personList = personApi.findAll();
+        System.out.println(personList.size());
+        Person person = personApi.findPerson(5L);
+        System.out.println(person.getName());
     }
 }

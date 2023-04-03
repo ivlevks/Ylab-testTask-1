@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 public class PersonRepositoryImpl implements Repository {
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
     public PersonRepositoryImpl(DataSource dataSource) {
         this.dataSource = dataSource;

@@ -13,15 +13,11 @@ import java.util.List;
 
 @Component
 public class PersonApiImpl implements PersonApi {
-    private final CachingConnectionFactory connectionFactory;
-    private DataSource dataSource;
-    private RabbitTemplate template;
-    private Repository repository;
+    private final RabbitTemplate template;
+    private final Repository repository;
 
     public PersonApiImpl(CachingConnectionFactory connectionFactory, DataSource dataSource,
                          RabbitTemplate template, Repository repository) {
-        this.connectionFactory = connectionFactory;
-        this.dataSource = dataSource;
         this.template = template;
         this.repository = repository;
     }

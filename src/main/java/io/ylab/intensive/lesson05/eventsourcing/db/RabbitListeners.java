@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RabbitListeners {
-    private Repository repository;
+    private final Repository repository;
 
     public RabbitListeners(Repository repository) {
         this.repository = repository;

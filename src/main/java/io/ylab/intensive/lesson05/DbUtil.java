@@ -33,31 +33,4 @@ public class DbUtil {
         dataSource.getConnection().close();
         return dataSource;
     }
-
-    public static boolean checkDbIfExists(String tableName, DataSource dataSource) {
-        boolean result = false;
-        try (Connection connection = dataSource.getConnection()) {
-            DatabaseMetaData metaData = connection.getMetaData();
-            String[] types = {"TABLE"};
-            ResultSet tables = metaData.getTables(null, null, tableName, types);
-            result = tables.next();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return result;
-    }
-
-    public static void writeDataFromDb(String tableName, DataSource dataSource, List<String> data) {
-        String writeData = "INSERT INTO " + tableName + " (word) VALUES (?)";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(writeData)) {
-
-            for (String word : data) {
-                preparedStatement.setString(1, word);
-                preparedStatement.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

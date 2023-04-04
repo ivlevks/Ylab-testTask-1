@@ -1,12 +1,8 @@
 package io.ylab.intensive.lesson05.messagefilter;
 
-import com.rabbitmq.client.ConnectionFactory;
-import io.ylab.intensive.lesson05.DbUtil;
+
 import org.postgresql.ds.PGSimpleDataSource;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -69,16 +65,6 @@ public class Config {
   }
 
   @Bean
-  TopicExchange topicExchange() {
-    return new TopicExchange("word-exchange");
-  }
-
-  @Bean
-  Binding outputBinding(Queue outputQueue, TopicExchange topicExchange) {
-    return BindingBuilder.bind(outputQueue).to(topicExchange).with("word");
-  }
-
-  @Bean
   public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
     SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
     factory.setConnectionFactory(connectionFactory());
@@ -93,11 +79,10 @@ public class Config {
             + "create table profanity (\n"
             + "word varchar\n"
             + ")";
-
-    if (!DbUtil.checkDbIfExists("profanity", dataSource())) {
-      DbUtil.applyDdl(createDDL, dataSource());
-      List<String> dataFromFile = ReaderUtil.getDataFromFile("bad_word.txt");
-      DbUtil.writeDataFromDb("profanity", dataSource(), dataFromFile);
+    if (!Util.checkDbIfExists("profanity", dataSource())) {
+      Util.applyDdl(createDDL, dataSource());
+      List<String> dataFromFile = Util.getDataFromFile("bad_word.txt");
+      Util.writeDataFromDb("profanity", dataSource(), dataFromFile);
     }
   }
 }
